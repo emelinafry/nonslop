@@ -1,6 +1,46 @@
 {
-  "text-1": { "fractionHuman": 0.96, "verdict": "human" },
-  "text-2": { "fractionHuman": 0.02, "verdict": "ai" },
-  "text-3": { "fractionHuman": 0.99, "verdict": "human" },
-  "text-4": { "fractionHuman": 0.01, "verdict": "ai" }
+  "text-1": {
+    "fractionHuman": 1,
+    "verdict": "human"
+  },
+  "text-2": {
+    "fractionHuman": 1,
+    "verdict": "human"
+  },
+  "text-3": {
+    "fractionHuman": 2.802596928649634e-45,
+    "verdict": "ai"
+  },
+  "text-4": {
+    "fractionHuman": 1.3822568692702298e-27,
+    "verdict": "ai"
+  },
+  "text-5": {
+    "fractionHuman": 0,
+    "verdict": "ai"
+  },
+  "image-1": {
+    "fractionHuman": 0.15970574617385858,
+    "verdict": "ai",
+    "label": "Likely AI",
+    "source": "model"
+  },
+  "image-2": {
+    "fractionHuman": 0.9801599370936552,
+    "verdict": "human",
+    "label": "No AI",
+    "source": "model"
+  },
+  "image-3": {
+    "fractionHuman": 0.0622875690460204,
+    "verdict": "ai",
+    "label": "AI Detected",
+    "source": "model"
+  },
+  "image-4": {
+    "fractionHuman": 0.04884624481201172,
+    "verdict": "ai",
+    "label": "AI Detected",
+    "source": "model"
+  }
 }

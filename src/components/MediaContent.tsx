@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { MediaItem } from '../data/cards';
 
 /** Renders the piece on a card: written text, a photo, or a looping silent clip. */
@@ -6,18 +6,7 @@ export function MediaContent({ item, compact = false }: { item: MediaItem; compa
   const [missing, setMissing] = useState(false);
 
   if (item.kind === 'text') {
-    return (
-      <p
-        className="display"
-        style={{
-          fontSize: compact ? 22 : (item.text?.length ?? 0) > 90 ? 24 : 28,
-          lineHeight: compact ? '30px' : '36px',
-          letterSpacing: '-0.01em',
-        }}
-      >
-        {item.text}
-      </p>
-    );
+    return <FitText text={item.text ?? ''} max={compact ? 22 : 28} />;
   }
 
   if (missing || !item.src) {
@@ -60,5 +49,57 @@ export function MediaContent({ item, compact = false }: { item: MediaItem; compa
     <img src={item.src} alt="" draggable={false} style={mediaStyle} onError={() => setMissing(true)} />
   ) : (
     <video src={item.src} style={mediaStyle} autoPlay muted loop playsInline onError={() => setMissing(true)} />
+  );
+}
+
+/**
+ * Card text at the design size (28px front, 22px back) when it fits, stepping down only as far
+ * as a longer piece needs so a full paragraph never runs off the card. Re-fits when the card
+ * resizes or the web font finishes loading.
+ */
+function FitText({ text, max, min = 12 }: { text: string; max: number; min?: number }) {
+  const box = useRef<HTMLDivElement>(null);
+  const para = useRef<HTMLParagraphElement>(null);
+  const [size, setSize] = useState(max);
+
+  useLayoutEffect(() => {
+    const el = box.current;
+    const p = para.current;
+    if (!el || !p) return;
+    const apply = (px: number) => {
+      p.style.fontSize = `${px}px`;
+      p.style.lineHeight = `${Math.round(px * 1.29)}px`;
+    };
+    const fit = () => {
+      if (!el.clientHeight) return;
+      let lo = min;
+      let hi = max;
+      apply(max);
+      if (p.offsetHeight <= el.clientHeight) lo = max;
+      else {
+        while (hi - lo > 0.5) {
+          const mid = (lo + hi) / 2;
+          apply(mid);
+          if (p.offsetHeight <= el.clientHeight) lo = mid;
+          else hi = mid;
+        }
+      }
+      const best = Math.floor(lo * 2) / 2;
+      apply(best);
+      setSize(best);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el);
+    void document.fonts?.ready.then(fit);
+    return () => ro.disconnect();
+  }, [text, max, min]);
+
+  return (
+    <div ref={box} style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+      <p ref={para} className="display" style={{ fontSize: size, lineHeight: `${Math.round(size * 1.29)}px`, letterSpacing: '-0.01em' }}>
+        {text}
+      </p>
+    </div>
   );
 }

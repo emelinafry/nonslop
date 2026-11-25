@@ -1,6 +1,6 @@
 # Hot or Slop
 
-A swipe game for the Non-Slop Hackathon. Ten pieces (photos, clips, and writing) come up one at a time, and you swipe right if a human made it and left if AI did. After each guess you say *why*. At the end you get one of five archetypes, each with its own pixel capybara, plus how you did against Pangram on the writing.
+A swipe game for the Non-Slop Hackathon. Nine pieces (four photos and five pieces of writing) come up one at a time, and you swipe right if a human made it and left if AI did. After each guess you say *why*. At the end you get one of five archetypes, each with its own pixel capybara, plus how you did against Pangram, the AI detector, on the same cards.
 
 Built with React, Vite, Framer Motion, and [Paper Shaders](https://shaders.paper.design) (`@paper-design/shaders-react`) for the watercolor mesh on the result screen. The visual design comes from the Paper file.
 
@@ -19,14 +19,14 @@ Over plain `http://` on wifi the browser turns off the native share sheet, so Sh
 
 ## Before the demo
 
-1. **Add the media.** Put three photos and three clips in `public/media/` named `image-1.jpg` to `image-3.jpg` and `video-1.mp4` to `video-3.mp4`, or point `src` in `src/data/cards.ts` at your own files. Until then those cards show a dashed placeholder.
-2. **Replace the placeholder writing.** The four written pieces in `src/data/cards.ts` are stand-ins. Swap in pieces people in the room actually wrote, and AI pieces generated from the same prompts. Set `isHuman` and `author` for each.
-3. **Score the writing with Pangram.** Pangram reads text only, so only written cards get a score.
+1. **Media.** The four photos are in `public/media/image-1.jpg` to `image-4.jpg`. To add more, including video clips (`kind: 'video'`), put the files in `public/media/` and add a card in `src/data/cards.ts`. Strip metadata from new media before committing: AI images often carry Content Credentials that name the generator, which would give the answer away to anyone who downloads the file from this public repo.
+2. **Writing.** The five written pieces in `src/data/cards.ts` are real: two human-written and three AI-generated. To change them, edit the `text` and set `isHuman` (and `author` for human pieces), then rescore. Card text shrinks to fit, so a full paragraph works.
+3. **Score the deck with Pangram.** Written cards go to Pangram's text API and photos to its image API. Images are billed per image, so `npm run score -- text` rescores just the writing and `npm run score -- images` just the photos. A partial run keeps the other scores.
    ```bash
    cp .env.example .env   # then put your key in .env
    npm run score
    ```
-   `npm run score` reads the key from `.env`, or from `PANGRAM_API_KEY` in your shell. `.env` is git-ignored, so never commit the key or put it in `src/`. The script writes `src/data/pangram-scores.json`, so the game never waits on the network during the demo. Rerun it whenever you change the written cards. If it can't read every written card's text, it stops and tells you instead of skipping one.
+   `npm run score` reads the key from `.env`, or from `PANGRAM_API_KEY` in your shell. `.env` is git-ignored, so never commit the key or put it in `src/`. The script writes `src/data/pangram-scores.json`, so the game never waits on the network during the demo. Rerun it whenever you change a card. Photos are scored from the metadata-stripped copies in `public/media`, so Pangram judges the pixels, not Content Credentials. If it can't read every written card's text, it stops and tells you instead of skipping one.
 4. **Optional sound.** Drop short files at `public/sfx/paper-swish.mp3` and `public/sfx/stamp.mp3`. Record real paper.
 
 ## How scoring works

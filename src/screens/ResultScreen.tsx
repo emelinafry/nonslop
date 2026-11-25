@@ -97,9 +97,9 @@ export function ResultScreen({ summary, answers, deck, onReplay }: Props) {
               )}
               {tell.tail}
             </p>
-            {summary.writing.scored > 0 && (
+            {summary.vsPangram.scored > 0 && (
               <p style={{ fontSize: 13, color: 'var(--color-graphite)' }}>
-                On the writing: you {summary.writing.you}/{summary.writing.total}, Pangram {summary.writing.pangram}/{summary.writing.scored}.
+                Against Pangram: you {summary.vsPangram.you}/{summary.vsPangram.scored}, Pangram {summary.vsPangram.pangram}/{summary.vsPangram.scored}.
               </p>
             )}
           </div>

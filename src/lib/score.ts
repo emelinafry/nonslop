@@ -9,8 +9,8 @@ export interface Summary {
   /** Most-used reason and how often it was right. Null when no reason clearly dominates. */
   tell: { reason: Reason; used: number; right: number } | null;
   reasonsUsed: number;
-  /** You vs Pangram on the written pieces only (Pangram reads text). */
-  writing: { total: number; you: number; pangram: number; scored: number };
+  /** You vs Pangram on every card Pangram scored (writing and photos). */
+  vsPangram: { you: number; pangram: number; scored: number };
 }
 
 export function summarize(answers: Answer[], deck: MediaItem[] = DECK): Summary {
@@ -29,18 +29,16 @@ export function summarize(answers: Answer[], deck: MediaItem[] = DECK): Summary 
   const dominant = top && (!second || top[1].used > second[1].used) && top[1].used >= 3;
   const tell = dominant ? { reason: top[0], ...top[1] } : null;
 
-  const written = deck.filter((d) => d.kind === 'text');
+  // Compare on the same cards: only the ones Pangram has a verdict for.
   let you = 0;
   let pangram = 0;
   let scored = 0;
-  for (const item of written) {
-    const a = answers.find((x) => x.id === item.id);
-    if (a?.correct) you += 1;
+  for (const item of deck) {
     const p = pangramFor(item);
-    if (p) {
-      scored += 1;
-      if ((p.verdict === 'human') === item.isHuman) pangram += 1;
-    }
+    if (!p) continue;
+    scored += 1;
+    if (answers.find((x) => x.id === item.id)?.correct) you += 1;
+    if ((p.verdict === 'human') === item.isHuman) pangram += 1;
   }
 
   return {
@@ -49,7 +47,7 @@ export function summarize(answers: Answer[], deck: MediaItem[] = DECK): Summary 
     archetype: archetypeFor(correct, total),
     tell,
     reasonsUsed: byReason.size,
-    writing: { total: written.length, you, pangram, scored },
+    vsPangram: { you, pangram, scored },
   };
 }
 

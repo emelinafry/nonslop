@@ -207,9 +207,7 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
                   ? `${pangram.verdict === (item.isHuman ? 'human' : 'ai') ? 'agrees' : 'got fooled'} — ${Math.round(
                       (pangram.verdict === 'human' ? pangram.fractionHuman : 1 - pangram.fractionHuman) * 100,
                     )}% ${pangram.verdict === 'human' ? 'human' : 'AI'}`
-                  : item.kind === 'text'
-                    ? 'not scored yet'
-                    : 'reads text only'}
+                  : 'not scored yet'}
               </span>
             </div>
           </div>

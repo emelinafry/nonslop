@@ -9,3 +9,6 @@ __pycache__/
 *.pyc
 .venv/
 .claude/settings.local.json
+
+# Original uploads with metadata (answers in Content Credentials). Commit the stripped copies in public/media.
+media-originals/
