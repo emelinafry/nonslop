@@ -1,0 +1,153 @@
+:root {
+  --color-paper: #f4f3f1;
+  --color-card: #fcfbf9;
+  --color-ink: #1f1d1b;
+  --color-graphite: #6e6a66;
+  --color-tape: rgba(237, 227, 200, 0.9);
+  --color-human: #e4572e;
+  --color-ai: #2e4bd6;
+
+  --font-display: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+  --font-hand: 'Gochi Hand', 'Comic Sans MS', cursive;
+  --font-ui: 'Inter Variable', 'Inter', system-ui, sans-serif;
+
+  --radius-card: 3px;
+  --radius-pill: 999px;
+  --tracking-label: 0.12em;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: #d9d6d1;
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Phone-sized frame on desktop, full screen on mobile. */
+.app {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  max-height: 932px;
+  margin: 0 auto;
+  overflow: hidden;
+  background-color: var(--color-paper);
+  background-image: url('/assets/paper.jpg');
+  background-size: cover;
+  background-blend-mode: multiply;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 500px) {
+  body {
+    display: grid;
+    place-items: center;
+  }
+  .app {
+    border-radius: 36px;
+    box-shadow: 0 30px 80px rgba(31, 29, 27, 0.25);
+  }
+}
+
+.screen {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-graphite);
+}
+
+.hand {
+  font-family: var(--font-hand);
+}
+
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 58px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: 21px;
+  transition: transform 0.12s ease;
+}
+.pill:active {
+  transform: scale(0.97);
+}
+.pill--ink {
+  background: var(--color-ink);
+  color: var(--color-card);
+}
+.pill--outline {
+  border: 1.5px solid currentColor;
+  background: rgba(252, 251, 249, 0.65);
+}
+
+/* Paper card surface: texture multiplied over card stock. */
+.paper-card {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  background-color: var(--color-card);
+  background-image: url('/assets/paper.jpg');
+  background-size: cover;
+  background-blend-mode: multiply;
+  overflow: hidden;
+}
+
+.tape {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 100px;
+  height: 28px;
+  margin-left: -50px;
+  background: var(--color-tape);
+  transform: rotate(3deg);
+  z-index: 3;
+  box-shadow: 0 1px 1px rgba(31, 29, 27, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

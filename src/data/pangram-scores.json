@@ -1,0 +1,6 @@
+{
+  "text-1": { "fractionHuman": 0.96, "verdict": "human" },
+  "text-2": { "fractionHuman": 0.02, "verdict": "ai" },
+  "text-3": { "fractionHuman": 0.99, "verdict": "human" },
+  "text-4": { "fractionHuman": 0.01, "verdict": "ai" }
+}
