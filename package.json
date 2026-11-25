@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:phone": "vite --host",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "score": "node scripts/score-cards.mjs"
+    "score": "node --env-file-if-exists=.env scripts/score-cards.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

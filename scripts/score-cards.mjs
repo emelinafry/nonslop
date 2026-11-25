@@ -18,8 +18,19 @@ if (!key) {
 
 // Pull the written cards out of src/data/cards.ts without a TS build step.
 const source = await readFile(path.join(root, 'src/data/cards.ts'), 'utf8');
-const cardPattern = /id:\s*'([^']+)',\s*kind:\s*'text'[\s\S]*?text:\s*'((?:[^'\\]|\\.)*)'/g;
-const cards = [...source.matchAll(cardPattern)].map(([, id, text]) => ({ id, text: text.replace(/\\'/g, "'") }));
+// Handles text in '...', "..." or `...` so an apostrophe in a piece doesn't drop it.
+const cardPattern = /id:\s*['"]([^'"]+)['"],\s*kind:\s*['"]text['"][\s\S]*?text:\s*(['"`])((?:(?!\2)[^\\]|\\.)*)\2/g;
+const cards = [...source.matchAll(cardPattern)].map(([, id, , text]) => ({
+  id,
+  text: text.replace(/\\(['"`\\])/g, '$1').replace(/\\n/g, '\n'),
+}));
+
+const expected = (source.match(/kind:\s*['"]text['"]/g) ?? []).length;
+if (cards.length !== expected) {
+  console.error(`Found ${expected} written cards in cards.ts but could only read the text of ${cards.length}.`);
+  console.error("Keep each written card's fields in the order id, kind, ..., text, with the text as a plain string.");
+  process.exit(1);
+}
 
 const out = {};
 for (const card of cards) {

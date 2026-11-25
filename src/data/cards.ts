@@ -77,5 +77,8 @@ const scores = pangramScores as Record<string, PangramResult>;
 /** Pangram only reads text, so image and video cards return null. */
 export function pangramFor(item: MediaItem): PangramResult | null {
   if (item.kind !== 'text') return null;
-  return scores[item.id] ?? null;
+  const s = scores[item.id];
+  if (!s) return null;
+  // Verdict is defined by the score, so a hand-edited JSON can't disagree with itself.
+  return { fractionHuman: s.fractionHuman, verdict: s.fractionHuman >= 0.5 ? 'human' : 'ai' };
 }

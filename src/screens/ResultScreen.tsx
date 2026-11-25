@@ -18,13 +18,23 @@ export function ResultScreen({ summary, answers, deck, onReplay }: Props) {
   const { archetype } = summary;
   const tell = tellCopy(summary);
 
+  const [copied, setCopied] = useState(false);
+
   async function share() {
     const text = `I'm The ${archetype.name} on Hot or Slop: ${summary.correct}/${summary.total} right. Can you tell who made it?`;
-    try {
-      if (navigator.share) await navigator.share({ title: 'Hot or Slop', text, url: location.href });
-      else await navigator.clipboard.writeText(`${text} ${location.href}`);
-    } catch {
-      /* user cancelled */
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Hot or Slop', text, url: location.href });
+        return;
+      } catch (e) {
+        if ((e as DOMException)?.name === 'AbortError') return; // player closed the share sheet
+      }
+    }
+    // Web Share and the async clipboard only exist on https/localhost. Over plain http on
+    // local wifi (vite --host), fall back to the old textarea copy so Share still works.
+    if (await copyText(`${text} ${location.href}`)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
     }
   }
 
@@ -98,7 +108,7 @@ export function ResultScreen({ summary, answers, deck, onReplay }: Props) {
               Breakdown
             </button>
             <button className="pill pill--ink" style={{ flex: 1 }} onClick={share}>
-              Share
+              {copied ? 'Copied' : 'Share'}
             </button>
           </div>
         </div>
@@ -170,4 +180,30 @@ export function ResultScreen({ summary, answers, deck, onReplay }: Props) {
       </AnimatePresence>
     </div>
   );
+}
+
+async function copyText(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    /* fall through to the textarea copy */
+  }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch {
+    return false;
+  }
 }

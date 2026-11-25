@@ -44,14 +44,26 @@ button {
   cursor: pointer;
 }
 
-/* Phone-sized frame on desktop, full screen on mobile. */
+/*
+ * The game is laid out on a fixed phone canvas (390 x 844 design pixels) and scaled to fit
+ * the window, so type and spacing keep their proportions on any screen. See useFit in App.tsx.
+ * On a phone the canvas grows to the screen's own aspect ratio; on desktop it's a framed phone.
+ */
+.stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Centered explicitly: grid/flex centering pins an oversized child to the top-left instead. */
 .app {
-  position: relative;
-  width: 100%;
-  max-width: 430px;
-  height: 100dvh;
-  max-height: 932px;
-  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--fit-w) * 1px);
+  height: calc(var(--fit-h) * 1px);
+  transform: translate(-50%, -50%) scale(var(--fit-s));
+  transform-origin: center;
   overflow: hidden;
   background-color: var(--color-paper);
   background-image: url('/assets/paper.jpg');
@@ -61,15 +73,9 @@ button {
   flex-direction: column;
 }
 
-@media (min-width: 500px) {
-  body {
-    display: grid;
-    place-items: center;
-  }
-  .app {
-    border-radius: 36px;
-    box-shadow: 0 30px 80px rgba(31, 29, 27, 0.25);
-  }
+.app--framed {
+  border-radius: 36px;
+  box-shadow: 0 30px 80px rgba(31, 29, 27, 0.25);
 }
 
 .screen {

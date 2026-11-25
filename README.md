@@ -11,7 +11,11 @@ npm install
 npm run dev
 ```
 
-Open the local URL on your phone (same wifi) or in a narrow browser window. Arrow keys work for swiping on a laptop.
+Open the local URL in a narrow browser window. Arrow keys work for swiping on a laptop.
+
+**On your phone:** run `npm run dev:phone` (that's `vite --host`) on a laptop that's on the same wifi as the phone, then open the `Network:` URL it prints, e.g. `http://192.168.1.20:5173`. Some campus and hackathon networks block phone-to-laptop traffic. If the page won't load, use a phone hotspot instead.
+
+Over plain `http://` on wifi the browser turns off the native share sheet, so Share copies the result text instead and the button says "Copied". On `localhost` or a deployed `https://` URL, Share opens the share sheet.
 
 ## Before the demo
 
@@ -19,10 +23,10 @@ Open the local URL on your phone (same wifi) or in a narrow browser window. Arro
 2. **Replace the placeholder writing.** The four written pieces in `src/data/cards.ts` are stand-ins. Swap in pieces people in the room actually wrote, and AI pieces generated from the same prompts. Set `isHuman` and `author` for each.
 3. **Score the writing with Pangram.** Pangram reads text only, so only written cards get a score.
    ```bash
-   cp .env.example .env   # add your key
-   PANGRAM_API_KEY=... npm run score
+   cp .env.example .env   # then put your key in .env
+   npm run score
    ```
-   This writes `src/data/pangram-scores.json`, so the game never waits on the network during the demo.
+   `npm run score` reads the key from `.env`, or from `PANGRAM_API_KEY` in your shell. `.env` is git-ignored, so never commit the key or put it in `src/`. The script writes `src/data/pangram-scores.json`, so the game never waits on the network during the demo. Rerun it whenever you change the written cards. If it can't read every written card's text, it stops and tells you instead of skipping one.
 4. **Optional sound.** Drop short files at `public/sfx/paper-swish.mp3` and `public/sfx/stamp.mp3`. Record real paper.
 
 ## How scoring works

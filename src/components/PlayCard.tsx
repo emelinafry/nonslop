@@ -30,10 +30,8 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
   const rotateZ = useTransform(x, [-200, 0, 200], [-13.5, -1.5, 10.5]);
   const dragRotateY = useTransform(x, [-200, 200], [8, -8]);
   const dragScale = useTransform(x, (v) => 1 + Math.min(Math.abs(v) / 200, 1) * 0.03);
-  const shadow = useTransform(x, (v) => {
-    const t = Math.min(Math.abs(v) / 200, 1);
-    return `0 ${4 + t * 20}px ${10 + t * 30}px rgba(31,29,27,${0.12 + t * 0.1})`;
-  });
+  // Growing shadow: a fixed deep shadow fades in over a resting one, so only opacity animates.
+  const liftShadow = useTransform(x, (v) => Math.min(Math.abs(v) / 200, 1));
   // Light sliding across the paper grain.
   const sheenX = useTransform(x, [-220, 220], ['0%', '100%']);
   const stampHuman = useTransform(x, [40, 140], [0, 1]);
@@ -69,7 +67,21 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
       const dir = guessHuman ? 1 : -1;
       play('paper-swish');
       tap();
-      animate(x, dir * 620, { type: 'spring', stiffness: 220, damping: 22, velocity: dir * 800 }).then(onLeft);
+      // Hand over to the next card as soon as this one is off the table, instead of waiting
+      // a second or more for the spring's overshoot to settle somewhere nobody can see.
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        unsubscribe();
+        fling.stop();
+        onLeft();
+      };
+      const fling = animate(x, dir * 620, { type: 'spring', stiffness: 220, damping: 22, velocity: dir * 800 });
+      const unsubscribe = x.on('change', (v) => {
+        if (Math.abs(v) > 480) finish();
+      });
+      fling.then(finish);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
@@ -96,8 +108,11 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
 
   function handleDragEnd(_: unknown, info: PanInfo) {
     const { offset, velocity } = info;
-    if (Math.abs(offset.x) > FLING_DISTANCE || Math.abs(velocity.x) > FLING_VELOCITY) {
-      commit(offset.x > 0 || (Math.abs(offset.x) < 10 && velocity.x > 0));
+    if (Math.abs(offset.x) > FLING_DISTANCE) {
+      commit(offset.x > 0);
+    } else if (Math.abs(velocity.x) > FLING_VELOCITY) {
+      // A quick flick counts in the direction it was thrown, even if the card hadn't travelled far.
+      commit(velocity.x > 0);
     } else {
       // Snap back with a little overshoot, like paper settling.
       animate(x, 0, { type: 'spring', stiffness: 400, damping: 18 });
@@ -138,10 +153,11 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
           inset: 0,
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
-          boxShadow: shadow,
+          boxShadow: REST_SHADOW,
           borderRadius: 3,
         }}
       >
+        <LiftShadow opacity={liftShadow} />
         <div className="paper-card" />
         <div className="tape" />
         <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', gap: 20, padding: '38px 28px 26px' }}>
@@ -162,10 +178,11 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
           rotateY: 180,
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
-          boxShadow: shadow,
+          boxShadow: REST_SHADOW,
           borderRadius: 3,
         }}
       >
+        <LiftShadow opacity={liftShadow} />
         <div className="paper-card" />
         <div className="tape" />
         <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', gap: 16, padding: '38px 28px 26px' }}>
@@ -199,6 +216,23 @@ export function PlayCard({ item, mode, x, guessHuman, pangram, reason, onGuess, 
         </div>
       </motion.div>
     </motion.div>
+  );
+}
+
+const REST_SHADOW = '0 4px 10px rgba(31,29,27,0.12)';
+
+function LiftShadow({ opacity }: { opacity: MotionValue<number> }) {
+  return (
+    <motion.div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        borderRadius: 3,
+        boxShadow: '0 24px 40px rgba(31,29,27,0.22)',
+        opacity,
+        pointerEvents: 'none',
+      }}
+    />
   );
 }
 

@@ -5,6 +5,7 @@ import type { Reason } from '../data/archetypes';
 import { PlayCard, type CardMode } from '../components/PlayCard';
 import { WhySheet } from '../components/WhySheet';
 import { Tally } from '../components/Tally';
+import { play, tap } from '../lib/feel';
 
 export interface Answer {
   id: string;
@@ -44,6 +45,14 @@ export function PlayScreen({ deck, onDone, onQuit }: Props) {
     setMode('why');
   }
 
+  // The buttons get the same swish and haptic tap as a swipe.
+  function handleButton(human: boolean) {
+    if (mode !== 'guess') return;
+    play('paper-swish');
+    tap();
+    handleGuess(human);
+  }
+
   function handleReason(r: Reason) {
     setReason(r);
     const answer: Answer = { id: item.id, guessHuman: guessHuman!, reason: r, correct: guessHuman === item.isHuman };
@@ -60,6 +69,8 @@ export function PlayScreen({ deck, onDone, onQuit }: Props) {
       onDone(answers);
       return;
     }
+    // Reset before the next card mounts so it never paints at the flung-off position.
+    x.set(0);
     setIndex((i) => i + 1);
     setGuessHuman(null);
     setReason(null);
@@ -139,7 +150,7 @@ export function PlayScreen({ deck, onDone, onQuit }: Props) {
               className="pill pill--outline"
               style={{ flex: 1, color: 'var(--color-ai)', opacity: mode === 'guess' ? 1 : 0.4 }}
               disabled={mode !== 'guess'}
-              onClick={() => handleGuess(false)}
+              onClick={() => handleButton(false)}
             >
               ← AI
             </button>
@@ -147,7 +158,7 @@ export function PlayScreen({ deck, onDone, onQuit }: Props) {
               className="pill pill--outline"
               style={{ flex: 1, color: 'var(--color-human)', opacity: mode === 'guess' ? 1 : 0.4 }}
               disabled={mode !== 'guess'}
-              onClick={() => handleGuess(true)}
+              onClick={() => handleButton(true)}
             >
               Human →
             </button>
